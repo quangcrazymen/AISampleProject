@@ -1,72 +1,97 @@
+using System;
+using Unity.VisualScripting;
 using Unity.VisualScripting.Dependencies.NCalc;
 using UnityEngine;
 using UnityEngine.TextCore.Text;
 
-class SteeringOutput
+class Static
 {
-    Vector3 linear;
-    float angular;
+    public Vector3 position;
+    public float orientation;
 }
-public class PlayerMovement : MonoBehaviour
+
+public class SteeringOutput
 {
-    class Static
-    {
-        Vector3 position;
-        float orientation;
+    public Vector3 linear;
+    public float angular;
+}
+class Kinemetics
+{
 
-    }
-    class KinematicSteeringOutput
-    {
-        Vector3 velocity;
-        float rotation;
+    Vector3 position;
+    float orientation;
+    Vector3 velocity;
+    float rotation;
 
+    void Update(SteeringOutput steering, float time)
+    {
+        // Update the position and orientation.
+        position += velocity * time;
+        orientation += rotation * time;
+        // and the velocity and rotation.
+        velocity += steering.linear * time;
+        rotation += steering.angular * time;
     }
-    // class KinematicSeek
-    // {
-    // KinematicSeek
+}
+class KinematicSteeringOutput
+{
+    public Vector3 velocity;
+    public float rotation;
+
+}
+class KinematicSeek
+{
+
     float newOrientation(float current, Vector3 velocity)
     {
         if (velocity.sqrMagnitude > 0)
         {
-            return Mathf.Atan2(-transform.position.x, transform.position.z);
+            // return Mathf.Atan2(-transform.position.x, transform.position.z);
         }
         else return current;
     }
-    // }
+
     float maxSpeed;
 
-    // character : static
-    // target : static
-    KinematicSteeringOuput getSteering()
+    Static character;
+    Static target;
+    KinematicSteeringOutput getSteering()
     {
 
-        result = new KinematicSteeringOutput()
+        var result = new KinematicSteeringOutput();
         // Get direction to the target
-        result.velocity = target.position - Character.position;
-# The velocity is along this direction, at full speed.
-        result.velocity.normalize()
-            result.velocity *= maxSpeed;
-# Face in the direction we want to move.
-        character.orientation = newOrientation(
-            character.orientation,
-                result.velocity)
-        result.rotation = 0
-        return result
+        result.velocity = target.position - character.position;
+        // The velocity is along this direction, at full speed.
+        result.velocity = result.velocity.normalized;
+        result.velocity *= maxSpeed;
+        // Face in the direction we want to move.
+        character.orientation = newOrientation(character.orientation, result.velocity);
+        result.rotation = 0;
+        return result;
+    }
+}
+
+public class PlayerMovement : MonoBehaviour
+{
+    public Vector3 orientationToDirectionalVector(float orientation)
+    {
+        return new Vector3(Mathf.Sin(orientation), Mathf.Cos(orientation), 0.0f);
+    }
+
+    [SerializeField]
+    [OnChangedCall("onSerializedPropertyChange")]
+    private float orientation;
+    public void onSerializedPropertyChange()
+    {
+        // transform.localScale = new Vector3(_size, _size, _size);
+        Debug.LogFormat("Vector for orientation is Vector({0},{1},0)", orientationToDirectionalVector(orientation).x,
+                            orientationToDirectionalVector(orientation).y);
     }
 
     public float moveSpeed;
 
     public float jumpForce;
 
-    // Kinemetics
-    [SerializeField]
-    Vector3 position;
-    [SerializeField]
-    float orientation;
-    [SerializeField]
-    Vector3 velocity;
-    [SerializeField]
-    float rotation;
     private bool canJump;
 
     // orientation to vector
