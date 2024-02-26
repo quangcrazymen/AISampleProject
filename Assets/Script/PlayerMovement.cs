@@ -39,16 +39,17 @@ class KinematicSteeringOutput
     public float rotation;
 
 }
-class KinematicSeek
+public class KinematicSeek : PlayerMovement
 {
 
     float newOrientation(float current, Vector3 velocity)
     {
         if (velocity.sqrMagnitude > 0)
         {
-            // return Mathf.Atan2(-transform.position.x, transform.position.z);
+            return Mathf.Atan2(-transform.position.x, transform.position.z);
         }
-        else return current;
+        else
+            return current;
     }
 
     float maxSpeed;
@@ -78,6 +79,13 @@ public class PlayerMovement : MonoBehaviour
         return new Vector3(Mathf.Sin(orientation), Mathf.Cos(orientation), 0.0f);
     }
 
+    public Vector3 getPositionOfEnemy()
+    {
+        GameObject Enemy = GameObject.Find("Enemy");
+        // return new Vector3(Enemy.position.x, Enemy.position.y, Enemy.position.z);
+        return Enemy.transform.position;
+    }
+
     [SerializeField]
     [OnChangedCall("onSerializedPropertyChange")]
     private float orientation;
@@ -86,38 +94,50 @@ public class PlayerMovement : MonoBehaviour
         // transform.localScale = new Vector3(_size, _size, _size);
         Debug.LogFormat("Vector for orientation is Vector({0},{1},0)", orientationToDirectionalVector(orientation).x,
                             orientationToDirectionalVector(orientation).y);
+        Debug.Log(getPositionOfEnemy());
     }
 
     public float moveSpeed;
 
     public float jumpForce;
 
+    [SerializeField]
     private bool canJump;
 
     // orientation to vector
     // Start is called before the first frame update
+    Vector3 enemyInitialPosition;
     void Start()
     {
         canJump = true;
+        enemyInitialPosition = getPositionOfEnemy();
     }
     // Update is called once per frame
+    void OnEnemyPositionChanged(){
+        if(enemyInitialPosition != getPositionOfEnemy()){
+            enemyInitialPosition = getPositionOfEnemy();
+            Debug.Log("Current enemy position is:" + getPositionOfEnemy());
+        }
+    }
+
     void Update()
     {
         playerMove();
-        moveOverTime();
+        // moveOverTime();
         // rotationOverTime();
+        OnEnemyPositionChanged();
     }
     void rotationOverTime()
     {
         transform.Rotate(Vector3.up);
     }
-    void moveOverTime()
-    {
-        position += velocity * Time.deltaTime;
-        transform.Translate(position);
-        orientation += rotation * Time.deltaTime;
-        transform.Rotate(new Vector3(0, orientation, 0));
-    }
+    // public void moveOverTime()
+    // {
+    //     position += velocity * Time.deltaTime;
+    //     transform.Translate(position);
+    //     orientation += rotation * Time.deltaTime;
+    //     transform.Rotate(new Vector3(0, orientation, 0));
+    // }
     public void playerMove()
     {
 
@@ -133,6 +153,7 @@ public class PlayerMovement : MonoBehaviour
             {
                 Rigidbody playerRB = transform.GetComponent<Rigidbody>();
                 playerRB.AddForce(Vector2.up * jumpForce);
+                Debug.Log("JUMP");
             }
 
         }
