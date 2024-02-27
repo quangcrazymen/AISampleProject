@@ -42,6 +42,14 @@ class KinematicSteeringOutput
 public class KinematicSeek : PlayerMovement
 {
 
+    void Start(){
+        maxSpeed = 10.0f;
+
+    }
+
+    void Update(){
+
+    }
     float newOrientation(float current, Vector3 velocity)
     {
         if (velocity.sqrMagnitude > 0)
@@ -117,6 +125,11 @@ public class PlayerMovement : MonoBehaviour
         if(enemyInitialPosition != getPositionOfEnemy()){
             enemyInitialPosition = getPositionOfEnemy();
             Debug.Log("Current enemy position is:" + getPositionOfEnemy());
+            Vector3 direction = getPositionOfEnemy() - transform.position;
+            // prevent devision by zero?
+            Quaternion targetRotation = Quaternion.LookRotation(direction);
+            float rotationSpeed = 5f;
+            transform.rotation = Quaternion.Slerp(transform.rotation,targetRotation,rotationSpeed*Time.deltaTime);
         }
     }
 
@@ -127,9 +140,9 @@ public class PlayerMovement : MonoBehaviour
         // rotationOverTime();
         OnEnemyPositionChanged();
         // Rotate my character
-        Quaternion targetRotation = Quaternion.LookRotation(
-            new Vector3(orientationToDirectionalVector(orientation).x,0.0f,orientationToDirectionalVector(orientation).y).normalized);
-        transform.rotation = targetRotation;
+        // Quaternion targetRotation = Quaternion.LookRotation(
+        //     new Vector3(orientationToDirectionalVector(orientation).x,0.0f,orientationToDirectionalVector(orientation).y).normalized);
+        // transform.rotation = targetRotation;
     }
     void rotationOverTime()
     {
