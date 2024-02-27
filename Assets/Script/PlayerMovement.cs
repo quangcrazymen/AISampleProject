@@ -126,6 +126,10 @@ public class PlayerMovement : MonoBehaviour
         // moveOverTime();
         // rotationOverTime();
         OnEnemyPositionChanged();
+        // Rotate my character
+        Quaternion targetRotation = Quaternion.LookRotation(
+            new Vector3(orientationToDirectionalVector(orientation).x,0.0f,orientationToDirectionalVector(orientation).y).normalized);
+        transform.rotation = targetRotation;
     }
     void rotationOverTime()
     {
