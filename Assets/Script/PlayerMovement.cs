@@ -105,6 +105,7 @@ public class PlayerMovement : MonoBehaviour
         Debug.Log(getPositionOfEnemy());
     }
 
+    [SerializeField]
     public float moveSpeed;
 
     public float jumpForce;
@@ -122,7 +123,7 @@ public class PlayerMovement : MonoBehaviour
     }
     // Update is called once per frame
     void OnEnemyPositionChanged(){
-        if(enemyInitialPosition != getPositionOfEnemy()){
+        // if(enemyInitialPosition != getPositionOfEnemy()){
             enemyInitialPosition = getPositionOfEnemy();
             Debug.Log("Current enemy position is:" + getPositionOfEnemy());
             Vector3 direction = getPositionOfEnemy() - transform.position;
@@ -130,12 +131,13 @@ public class PlayerMovement : MonoBehaviour
             Quaternion targetRotation = Quaternion.LookRotation(direction);
             float rotationSpeed = 5f;
             transform.rotation = Quaternion.Slerp(transform.rotation,targetRotation,rotationSpeed*Time.deltaTime);
-        }
+            transform.Translate(direction.normalized*moveSpeed*Time.deltaTime,Space.World);
+        // }
     }
 
     void Update()
     {
-        playerMove();
+        //playerMove();
         // moveOverTime();
         // rotationOverTime();
         OnEnemyPositionChanged();
